@@ -15,10 +15,7 @@ class DoctorLogin(BaseModel):
 
 @router.post("/login")
 def login(data: DoctorLogin):
-    if not data.doctor_id.startswith("DOC-"):
-        raise HTTPException(status_code=400, detail="Invalid Doctor ID format")
-
-    # Mock verification (in real use, validate against DB or QR/OTP service)
+    # ✅ No prefix restriction
     if data.otp != "1234":
         raise HTTPException(status_code=401, detail="Invalid OTP")
 
@@ -40,3 +37,4 @@ def check_status(doctor_id: str):
     if not session:
         return {"logged_in": False}
     return {"logged_in": True, "session": session}
+
