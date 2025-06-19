@@ -104,3 +104,20 @@ HF_MODEL	(Optional) Hugging Face model name (default: mistral-community/Mistral-
 
 Set these in Render → Environment → Environment Variables.
 
+🛠 Hosting & Deployment
+Frontend: React app (planned for Vercel/Netlify or hosted locally)
+
+Backend: FastAPI server deployed on Render
+
+Includes support for AI endpoints using Hugging Face Inference API
+
+Optional: Include the actual Render URL, if it's public:
+
+markdown
+Copy
+Edit
+🔗 Backend API: https://doctor-dashboard-backend.onrender.com
+You can put this under a Hosting & Deployment section in your README, or as part of the Tech Stack section like:
+
+Front-End Link: [https://doctor-dashboard-frontend.vercel.app/]
+Swagger UI: [https://doctor-dashboard-backend-6853.onrender.com/docs#/]
