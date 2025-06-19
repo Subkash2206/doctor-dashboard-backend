@@ -31,7 +31,7 @@ Hosted on **Render**, connected to a React frontend.
 
 ## 🌐 Live API
 
-📍 [https://doctor-dashboard-backend.onrender.com](https://doctor-dashboard-backend.onrender.com)
+📍 [https://doctor-dashboard-backend.onrender.com]([https://doctor-dashboard-backend.onrender.com](https://doctor-dashboard-backend-6853.onrender.com/))
 
 You can test APIs interactively at:
 
