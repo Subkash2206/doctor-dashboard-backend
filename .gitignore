@@ -20,4 +20,4 @@ venv/
 .pytest_cache/
 
 .idea/
-
+.env

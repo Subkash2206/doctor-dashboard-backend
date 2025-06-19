@@ -9,18 +9,22 @@ router = APIRouter()
 class SymptomsInput(BaseModel):
     symptoms: str
 
-@router.post("/ai")
+@router.post("/ai", response_model=dict)
 def generate_ai_prescription(input: SymptomsInput):
     try:
+        # Validate symptoms input
+        if not input.symptoms.strip():
+            raise HTTPException(status_code=400, detail="Symptoms cannot be empty.")
+
+        # Get AI-generated prescription
         prescription = get_prescription(input.symptoms)
+        if prescription.startswith("❌") or "error" in prescription.lower():
+            raise HTTPException(status_code=500, detail="Failed to generate prescription from AI.")
+
+        # Get AI-suggested department
         department = suggest_department(input.symptoms)
-
-        # Handle potential AI errors
-        if any(msg in prescription.lower() for msg in ["error", "❌"]) or not prescription.strip():
-            raise HTTPException(status_code=500, detail="AI failed to generate prescription.")
-
-        if any(msg in department.lower() for msg in ["error", "❌"]) or not department.strip():
-            raise HTTPException(status_code=500, detail="AI failed to suggest department.")
+        if department.startswith("❌") or "error" in department.lower():
+            raise HTTPException(status_code=500, detail="Failed to suggest department from AI.")
 
         return {
             "symptoms": input.symptoms,
@@ -29,5 +33,5 @@ def generate_ai_prescription(input: SymptomsInput):
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
