@@ -24,14 +24,15 @@ def get_prescription(symptoms: str) -> str:
         response = requests.post(
             API_URL,
             headers=HEADERS,
-            json={"inputs": prompt},
-            timeout=10
+            json={"inputs": prompt, "parameters": {"max_new_tokens": 100}},
+            timeout=15
         )
 
         if response.status_code == 200:
             data = response.json()
             if isinstance(data, list) and "generated_text" in data[0]:
-                return data[0]["generated_text"].strip()
+                generated = data[0]["generated_text"]
+                return generated.replace(prompt, "").strip()
             return "⚠️ AI returned an unexpected response format."
         else:
             return f"❌ AI error {response.status_code}: {response.text}"
@@ -49,27 +50,25 @@ def suggest_department(symptoms: str) -> str:
 
     prompt = (
         f"Patient symptoms: {symptoms}\n"
-        f"Which medical department should the patient visit? "
-        f"(Examples: Cardiology, Neurology, Orthopedics, General Medicine, etc.)"
+        f"Which medical department should handle this case?\n"
+        f"Department:"
     )
 
     try:
         response = requests.post(
             API_URL,
             headers=HEADERS,
-            json={"inputs": prompt},
+            json={"inputs": prompt, "parameters": {"max_new_tokens": 20}},
             timeout=10
         )
 
         if response.status_code == 200:
             data = response.json()
             if isinstance(data, list) and "generated_text" in data[0]:
-                output = data[0]["generated_text"].strip()
-                lines = output.split("\n")
-                if len(lines) > 1:
-                    return lines[1].strip()
-                return output
-            return "⚠️ AI returned an unexpected response format."
+                answer = data[0]["generated_text"]
+                dept = answer.split("Department:")[-1].strip()
+                return dept or "General Medicine"
+            return "⚠️ Unexpected AI response format."
         else:
             return f"❌ AI error {response.status_code}: {response.text}"
 
