@@ -56,6 +56,7 @@ pip install -r requirements.txt
 
 # Add your Hugging Face token
 echo 'HF_TOKEN=your_token_here' > .env
+# Optionally, set HF_MODEL to override the default model (see below)
 
 # Run the server
 uvicorn main:app --reload
@@ -69,8 +70,21 @@ uvicorn main:app --reload
 └── requirements.txt
 ```
 🧠 Model Info
-LLM used: mistralai/Mixtral-8x7B-Instruct-v0.1
+LLM used: mistralai/Mixtral-8x7B-Instruct-v0.1 (default)
 Accessed via Hugging Face API with HF_TOKEN.
+You can override the model by setting HF_MODEL in your .env file.
+
+If HF_TOKEN is missing, the backend will fall back to basic keyword-based logic for department suggestion and will not generate AI prescriptions.
+
+## 🔍 AI Health Check Endpoint
+
+You can check if the AI service is available by calling:
+
+```
+GET /ai-health
+```
+
+This returns `{ "ai_available": true/false, ... }` so the frontend or monitoring tools can detect AI outages.
 
 All requests are connected to:
 https://doctor-dashboard-backend.onrender.com
@@ -86,6 +100,7 @@ uvicorn main:app --host=0.0.0.0 --port=8000
 🔒 Environment Variables
 Key	Description
 HF_TOKEN	Hugging Face access token
+HF_MODEL	(Optional) Hugging Face model name (default: mistral-community/Mistral-7B-Instruct-v0.1)
 
 Set these in Render → Environment → Environment Variables.
 

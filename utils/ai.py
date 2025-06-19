@@ -48,7 +48,7 @@ def get_prescription(symptoms: str) -> str:
 
         else:
             print(f"❌ HF API Error {response.status_code}: {response.text}")
-            return f"⚠️ HF API error: {response.status_code}"
+            return f"⚠️ HF API error: {response.status_code} - {response.text}"
 
     except requests.exceptions.Timeout:
         print("❌ AI request timed out.")
@@ -56,7 +56,7 @@ def get_prescription(symptoms: str) -> str:
 
     except Exception as e:
         print("❌ Exception while getting prescription:", str(e))
-        return "⚠️ AI failed to generate prescription."
+        return f"⚠️ AI failed to generate prescription: {str(e)}"
 
 
 def suggest_department(symptoms: str) -> str:
@@ -71,6 +71,9 @@ def suggest_department(symptoms: str) -> str:
         f"Answer with just the department name."
     )
 
+    departments = [
+        "Cardiology", "Neurology", "Dermatology", "Psychiatry", "Orthopedics", "General Medicine"
+    ]
     try:
         response = requests.post(
             API_URL,
@@ -89,24 +92,44 @@ def suggest_department(symptoms: str) -> str:
             data = response.json()
             print("🏥 AI department suggestion response:", data)
 
+            # Try to extract department strictly
             if isinstance(data, list) and "generated_text" in data[0]:
                 raw = data[0]["generated_text"].strip()
-                for dept in ["Cardiology", "Neurology", "Dermatology", "Psychiatry", "Orthopedics", "General Medicine"]:
+                print(f"AI raw output: '{raw}'")
+                # Check for exact match (case-insensitive, strip extra text)
+                for dept in departments:
+                    if raw.lower() == dept.lower():
+                        return dept
+                # Check if department is contained in the response
+                for dept in departments:
                     if dept.lower() in raw.lower():
                         return dept
-                print("⚠️ No department matched, fallback to General Medicine.")
+                # Fallback: keyword-based matching from symptoms
+                print("⚠️ No department matched in AI output, using keyword fallback.")
+                symptom_lower = symptoms.lower()
+                if any(word in symptom_lower for word in ["chest", "heart", "angina", "palpitation"]):
+                    return "Cardiology"
+                if any(word in symptom_lower for word in ["headache", "seizure", "stroke", "paralysis", "neuro"]):
+                    return "Neurology"
+                if any(word in symptom_lower for word in ["skin", "rash", "itch", "eczema"]):
+                    return "Dermatology"
+                if any(word in symptom_lower for word in ["anxiety", "depression", "mental", "psych"]):
+                    return "Psychiatry"
+                if any(word in symptom_lower for word in ["bone", "joint", "fracture", "orthopedic"]):
+                    return "Orthopedics"
+                # Default fallback
                 return "General Medicine"
             return "General Medicine"
 
         else:
             print(f"❌ HF API Error {response.status_code}: {response.text}")
-            return "General Medicine"
+            return f"General Medicine (AI error: {response.status_code} - {response.text})"
 
     except requests.exceptions.Timeout:
         print("❌ Department suggestion timed out.")
-        return "General Medicine"
+        return "General Medicine (AI timeout)"
 
     except Exception as e:
         print("❌ Exception while suggesting department:", str(e))
-        return "General Medicine"
+        return f"General Medicine (AI exception: {str(e)})"
 

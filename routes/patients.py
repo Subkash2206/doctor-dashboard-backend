@@ -1,6 +1,6 @@
 # routes/patients.py
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body, Path
 from models.patient import Patient
 from typing import List
 from utils.ai import suggest_department  # ✅ AI-powered department suggestion
@@ -44,4 +44,27 @@ def create_patient(patient: Patient):
 @router.get("/", response_model=List[dict])
 def list_patients():
     return patients_db
+
+
+@router.post("/suggest-department", response_model=dict)
+def suggest_department_api(symptoms: str = Body(..., embed=True)):
+    try:
+        ai_suggestion = suggest_department(symptoms)
+        if ai_suggestion.startswith("❌") or "error" in ai_suggestion.lower():
+            raise HTTPException(status_code=500, detail="AI failed to assign department.")
+        return {"suggested_department": ai_suggestion}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+
+
+@router.delete("/{patient_id}", response_model=dict)
+def delete_patient(patient_id: int = Path(..., description="Index of the patient to delete")):
+    try:
+        if 0 <= patient_id < len(patients_db):
+            removed = patients_db.pop(patient_id)
+            return {"message": "Patient deleted", "patient": removed}
+        else:
+            raise HTTPException(status_code=404, detail="Patient not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
