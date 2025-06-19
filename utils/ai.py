@@ -1,7 +1,5 @@
 # utils/ai.py
 
-# utils/ai.py
-
 import requests
 import os
 from dotenv import load_dotenv
@@ -34,6 +32,43 @@ def get_prescription(symptoms: str) -> str:
             data = response.json()
             if isinstance(data, list) and "generated_text" in data[0]:
                 return data[0]["generated_text"].strip()
+            return "⚠️ AI returned an unexpected response format."
+        else:
+            return f"❌ AI error {response.status_code}: {response.text}"
+
+    except requests.exceptions.Timeout:
+        return "❌ AI request timed out. Try again later."
+
+    except requests.exceptions.RequestException as e:
+        return f"❌ AI request failed: {str(e)}"
+
+
+def suggest_department(symptoms: str) -> str:
+    if not HF_TOKEN:
+        return "❌ Hugging Face API token not set in environment."
+
+    prompt = (
+        f"Patient symptoms: {symptoms}\n"
+        f"Which medical department should the patient visit? "
+        f"(Examples: Cardiology, Neurology, Orthopedics, General Medicine, etc.)"
+    )
+
+    try:
+        response = requests.post(
+            API_URL,
+            headers=HEADERS,
+            json={"inputs": prompt},
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list) and "generated_text" in data[0]:
+                output = data[0]["generated_text"].strip()
+                lines = output.split("\n")
+                if len(lines) > 1:
+                    return lines[1].strip()
+                return output
             return "⚠️ AI returned an unexpected response format."
         else:
             return f"❌ AI error {response.status_code}: {response.text}"
