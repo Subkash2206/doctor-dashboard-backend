@@ -1,8 +1,9 @@
 # routes/prescription.py
 
+
 from fastapi import APIRouter
 from pydantic import BaseModel
-from utils.ai import get_prescription
+from utils.ai import get_prescription, suggest_department
 
 router = APIRouter()
 
@@ -11,8 +12,12 @@ class SymptomsInput(BaseModel):
 
 @router.post("/ai")
 def generate_ai_prescription(input: SymptomsInput):
-    result = get_prescription(input.symptoms)
+    prescription = get_prescription(input.symptoms)
+    department = suggest_department(input.symptoms)
+
     return {
         "symptoms": input.symptoms,
-        "ai_prescription": result
+        "suggested_department": department,
+        "ai_prescription": prescription
     }
+
