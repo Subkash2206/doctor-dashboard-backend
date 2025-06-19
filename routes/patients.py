@@ -16,9 +16,9 @@ def create_patient(patient: Patient):
         # ✅ Use AI to suggest department
         ai_suggestion = suggest_department(patient.symptoms)
 
-        # Handle error responses from AI
+        # Fallback to General Medicine if AI fails
         if ai_suggestion.startswith("❌") or "error" in ai_suggestion.lower():
-            raise HTTPException(status_code=500, detail="AI failed to assign department.")
+            ai_suggestion = "General Medicine"
 
         patient_data = {
             "name": patient.name,
@@ -50,11 +50,12 @@ def list_patients():
 def suggest_department_api(symptoms: str = Body(..., embed=True)):
     try:
         ai_suggestion = suggest_department(symptoms)
+        # Fallback to General Medicine if AI fails
         if ai_suggestion.startswith("❌") or "error" in ai_suggestion.lower():
-            raise HTTPException(status_code=500, detail="AI failed to assign department.")
+            ai_suggestion = "General Medicine"
         return {"suggested_department": ai_suggestion}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
+        return {"suggested_department": "General Medicine"}
 
 
 @router.delete("/{patient_id}", response_model=dict)
