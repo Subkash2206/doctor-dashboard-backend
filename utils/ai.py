@@ -46,35 +46,43 @@ def get_prescription(symptoms: str) -> str:
 
 def suggest_department(symptoms: str) -> str:
     if not HF_TOKEN:
-        return "❌ Hugging Face API token not set in environment."
+        return "General Medicine"  # fallback if token is missing
 
     prompt = (
         f"Patient symptoms: {symptoms}\n"
-        f"Which medical department should handle this case?\n"
-        f"Department:"
+        f"Which medical department should the patient visit? "
+        f"(Examples: Cardiology, Neurology, Orthopedics, General Medicine, etc.)"
     )
 
     try:
         response = requests.post(
             API_URL,
             headers=HEADERS,
-            json={"inputs": prompt, "parameters": {"max_new_tokens": 20}},
+            json={"inputs": prompt},
             timeout=10
         )
 
         if response.status_code == 200:
             data = response.json()
             if isinstance(data, list) and "generated_text" in data[0]:
-                answer = data[0]["generated_text"]
-                dept = answer.split("Department:")[-1].strip()
-                return dept or "General Medicine"
-            return "⚠️ Unexpected AI response format."
+                output = data[0]["generated_text"].lower()
+
+                # Very basic keyword check
+                if "cardiology, heart" in output:
+                    return "Cardiology"
+                elif "neuro, nerve, brain" in output:
+                    return "Neurology"
+                elif "ortho, leg, foot, fracture" in output:
+                    return "Orthopedics"
+                elif "dermatology, skin, rash, burn" in output or "skin" in output:
+                    return "Dermatology"
+                else:
+                    return "General Medicine"
+            return "General Medicine"
         else:
-            return f"❌ AI error {response.status_code}: {response.text}"
+            return "General Medicine"
 
-    except requests.exceptions.Timeout:
-        return "❌ AI request timed out. Try again later."
+    except Exception:
+        return "General Medicine"
 
-    except requests.exceptions.RequestException as e:
-        return f"❌ AI request failed: {str(e)}"
 
