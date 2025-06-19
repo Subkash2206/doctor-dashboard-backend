@@ -8,7 +8,7 @@ class Patient(BaseModel):
     age: int
     gender: str
     symptoms: str
-    diagnosis: str
+    diagnosis: str = ""
     history: Optional[str] = Field(default="", description="Previous medical history")
 
     class Config:

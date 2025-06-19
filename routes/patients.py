@@ -16,12 +16,21 @@ def create_patient(patient: Patient):
         # ✅ Use AI to suggest department
         ai_suggestion = suggest_department(patient.symptoms)
 
-        # Handle error responses from AI
+        # ❌ Check for AI failure
         if ai_suggestion.startswith("❌") or "error" in ai_suggestion.lower():
             raise HTTPException(status_code=500, detail="AI failed to assign department.")
 
-        patient_data = patient.dict()
-        patient_data["assigned_department"] = ai_suggestion
+        # ✅ Correctly placed — only runs if AI is successful
+        patient_data = {
+            "name": patient.name,
+            "age": patient.age,
+            "gender": patient.gender,
+            "symptoms": patient.symptoms,
+            "diagnosis": patient.diagnosis,
+            "history": patient.history,
+            "assigned_department": ai_suggestion
+        }
+
         patients_db.append(patient_data)
 
         return {
