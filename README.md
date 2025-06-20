@@ -111,13 +111,8 @@ Backend: FastAPI server deployed on Render
 
 Includes support for AI endpoints using Hugging Face Inference API
 
-Optional: Include the actual Render URL, if it's public:
 
-markdown
-Copy
-Edit
-🔗 Backend API: https://doctor-dashboard-backend.onrender.com
-You can put this under a Hosting & Deployment section in your README, or as part of the Tech Stack section like:
+
 
 Front-End Link: [https://doctor-dashboard-frontend.vercel.app/]
 Swagger UI: [https://doctor-dashboard-backend-6853.onrender.com/docs#/]
@@ -150,4 +145,4 @@ Uses Hugging Face's Mistral-7B-Instruct model to generate a treatment or prescri
 
 Available via a separate page or directly in the patient profile.
 
-Sorted based off the department and severity.
+Sorted based off of the department and severity.
