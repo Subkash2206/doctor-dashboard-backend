@@ -87,7 +87,7 @@ GET /ai-health
 This returns `{ "ai_available": true/false, ... }` so the frontend or monitoring tools can detect AI outages.
 
 All requests are connected to:
-https://doctor-dashboard-backend.onrender.com
+https://doctor-dashboard-backend-6853.onrender.com
 
 Deployment
 Platform: Render
